@@ -39,4 +39,5 @@ MLX5_1.6 {
 		mlx5dv_create_flow_matcher;
 		mlx5dv_destroy_flow_matcher;
 		mlx5dv_create_flow;
+		mlx5dv_create_flow_action_modify_header;
 } MLX5_1.5;
