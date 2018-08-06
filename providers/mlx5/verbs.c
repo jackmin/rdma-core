@@ -3715,13 +3715,14 @@ mlx5dv_create_flow(struct mlx5dv_flow_matcher *flow_matcher,
 	uint32_t flow_actions[CREATE_FLOW_MAX_FLOW_ACTIONS_SUPPORTED];
 	const struct verbs_flow_action *vaction;
 	int num_flow_actions = 0;
+	bool have_flow_tag = false;
 	struct mlx5_flow *mflow;
 	bool have_qp = false;
 	int ret;
 	int i;
 	DECLARE_COMMAND_BUFFER(cmd, UVERBS_OBJECT_FLOW,
 			       MLX5_IB_METHOD_CREATE_FLOW,
-			       5);
+			       6);
 	struct ib_uverbs_attr *handle;
 	enum mlx5dv_flow_action_type type;
 
@@ -3761,6 +3762,16 @@ mlx5dv_create_flow(struct mlx5dv_flow_matcher *flow_matcher,
 
 			flow_actions[num_flow_actions] = vaction->handle;
 			num_flow_actions++;
+			break;
+		case MLX5DV_FLOW_ACTION_TAG:
+			if (have_flow_tag) {
+				errno = EINVAL;
+				goto err;
+			}
+			fill_attr_in_uint32(cmd,
+					    MLX5_IB_ATTR_CREATE_FLOW_TAG,
+					    actions_attr[i].tag_value);
+			have_flow_tag = true;
 			break;
 		default:
 				errno = EOPNOTSUPP;
